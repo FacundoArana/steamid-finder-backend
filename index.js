@@ -20,21 +20,34 @@ transform_steam = (type,id) => {
 
 
 app.get('/get_steam_id', (req, res) => {
-  const id = req.query.id
-  const url = `http://api.steampowered.com/ISteamUser/ResolveVanityURL/v0001/?key=1CB841CFF94C388B9B53F59BCF4B060E&vanityurl=${id}`
+  const regex = /(?<=\/id\/)\d+/
+  const steamURL = req.query.id
 
-  
+  let id
 
-  fetch(url)
-  .then(response => response.json())
-  .then(json => {
-    const hex = transform_steam("hex", json.response.steamid);
-    
-    res.json({steamid64: json.response.steamid, steamid_hex: hex});
-  })
-  .catch(err => {
-      res.json({steamid64: null, error:"Failed to Fetch"});
-  });
+  if (steamURL){
+    const matches = steamURL.match(regex);
+    if(matches){
+      id = matches[0]
+    }
+  }
+
+  if (id){
+    const url = `http://api.steampowered.com/ISteamUser/ResolveVanityURL/v0001/?key=1CB841CFF94C388B9B53F59BCF4B060E&vanityurl=${id}`
+    fetch(url)
+    .then(response => response.json())
+    .then(json => {
+      const hex = transform_steam("hex", json.response.steamid);
+      
+      res.json({steamid64: json.response.steamid, steamid_hex: hex});
+    })
+    .catch(err => {
+        res.json({steamid64: null, error:"Failed to Fetch"});
+    });
+  } else {
+    res.json({steamid64: "Steam URL not valid", steamid_hex: "Steam URL not valid", error:"Failed to Fetch"});
+  }
+
 });
 
 app.listen(port, () => {
