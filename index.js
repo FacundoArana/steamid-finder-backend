@@ -21,8 +21,7 @@ transform_steam = (type,id) => {
 
 app.get('/get_steam_id', (req, res) => {
   const regex = /(?<=\/id\/)\d+/
-  const steamURL = req.query.id
-
+  const steamURL = req.query.steam_url
   let id
 
   if (steamURL){
